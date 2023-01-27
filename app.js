@@ -3,7 +3,7 @@ const express = require("express");
 const connectDB = require("./src/models/index");
 const cors = require("cors");
 const path = require("path");
-
+//Permet de cacher les données sencibles
 dotenv.config();
 
 const UserRoutes = require("./src/routes/user");
@@ -13,7 +13,7 @@ const app = express();
 
 connectDB();
 
-app.use(express.json()); //body-parser présent dans express. Permet de lire le contenu JSON renvoyé par les requêtes POST
+app.use(express.json()); //Body-parser présent dans express. Permet de lire le contenu JSON renvoyé par les requêtes POST
 app.use(
   cors({
     origin: "http://localhost:4200",

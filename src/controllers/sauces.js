@@ -1,7 +1,15 @@
 const ModelsSauce = require("../models/ModelsSauce");
 const fs = require("fs");
+const { param } = require("../routes/user");
+const { Model } = require("mongoose");
 
-exports.getSauce = async (req, res, next) => {
+/**
+ * Recupère la liste de sauces
+ * @param req 
+ * @param res 
+ * @param next 
+ */
+exports.getSauces = async (req, res, next) => {
   try {
     const sauces = await ModelsSauce.find() 
     res.json(sauces);
@@ -9,7 +17,12 @@ exports.getSauce = async (req, res, next) => {
     res.status(500).json();
   }
 };
-
+/**
+ * Récupère une sauce en partuiculier à partir de son ID
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
 exports.getSauceById = async (req, res, next) => {
   try {
     const sauce = await ModelsSauce.findOne({ _id: req.params.id});
@@ -18,7 +31,13 @@ exports.getSauceById = async (req, res, next) => {
     res.status(400).json({ error });
   }
 };
-
+/**
+ * Créer une sauce
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ * @returns {Object}
+ */
 exports.createSauce = async (req, res, next) => {
   try {
     const sauceObject = await JSON.parse(req.body.sauce);
@@ -45,7 +64,13 @@ exports.createSauce = async (req, res, next) => {
     res.status(500).json({ message: "erreur survenue" });
   }
 };
-
+/**
+ * Vérifie qu'une sauce existe bien et si elle appartient à un utilisateur, si oui la modifie
+ * @param req 
+ * @param res 
+ * @param next 
+ * @returns {Object} - 
+ */
 exports.modifySauce = async (req, res, next) => {
   try {
     const sauceId = req.params.id;
@@ -83,7 +108,13 @@ exports.modifySauce = async (req, res, next) => {
     res.status(400).json({ error });
   }
 };
-
+/**
+ * Vérifie qu'une sauce existe bien si oui la supprime ainsi que son image de la base de donnée
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ * @returns {Object}
+ */
 exports.deleteSauce = async (req, res, next) => {
   try {
     const sauce = await ModelsSauce.findOne({ _id: req.params.id, userId: req.user.id });
@@ -103,7 +134,17 @@ exports.deleteSauce = async (req, res, next) => {
     return res.status(500).json();
   }
 };
-
+/**
+ * Vérifie si:
+ * -un utilisateur est connecté
+ * -la sauce existe
+ * Permet de liker ou de disliker une sauce si l'utilisateur n'a pas déjà liké ou disliké la sauce auparavant
+ * Permet d'arreter de liker ou disliker si l'utilisateur à déjà liké ou disliké une sauce auparavant
+ * @param req 
+ * @param res 
+ * @param next 
+ * @returns 
+ */
 exports.likeSauce = async (req, res, next) => {
   try {
     const like = req.body.like;
@@ -161,7 +202,6 @@ exports.likeSauce = async (req, res, next) => {
           { $pull: { usersLiked: userId }, $inc: { likes: -1 } }
         );
       }
-
       return res.json({ message: "Vous n'amez pas cette sauce" });
     }
     return res.json();

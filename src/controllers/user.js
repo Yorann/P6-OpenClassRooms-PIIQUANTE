@@ -3,6 +3,13 @@ const jwt = require("jsonwebtoken")
 const xss = require("xss")
 const User = require("../models/User")
 
+/**
+ * Permet à un utilisateur de créer un compte à partir d'un e-mail et d'un mot de passe 
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ * @returns 
+ */
 exports.signup = async (req, res, next) => {
   try {
     const password = xss(req.body.password)
@@ -37,7 +44,13 @@ exports.signup = async (req, res, next) => {
     res.status(500).json();
   }
 }
-
+/**
+ * Permet à un utilisateur de se connecter à partir de son e-mail et de son mot de passe
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ * @returns 
+ */
 exports.login = async (req, res, next) => {
   try {
     const email = xss(req.body.email)

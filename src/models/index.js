@@ -2,6 +2,9 @@ const mongoose = require("mongoose")
 
 mongoose.set('strictQuery', false);
 
+/*
+ Permet de connecter à la base de donnée renvoi un message de confirmation ou un message d'erreur
+ */
 const connectDB = async () => {
     const mongoURL = process.env.MONGO_URL
 
