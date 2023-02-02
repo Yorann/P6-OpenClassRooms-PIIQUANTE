@@ -4,7 +4,7 @@ const xss = require("xss")
 const User = require("../models/User")
 
 /**
- * Permet à un utilisateur de créer un compte à partir d'un e-mail et d'un mot de passe 
+ * Permet à un utilisateur de créer un compte à partir d'un e-mail et d'un mot de passe cripté
  * @param {*} req 
  * @param {*} res 
  * @param {*} next 

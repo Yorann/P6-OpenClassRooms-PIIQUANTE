@@ -5,8 +5,8 @@ const User = require("../models/User")
  * Authentifie toutes les requêtes des utilisateurs
  * @param req 
  * @param res 
- * @param next 
- * @returns 
+ * @param {Function} next 
+ * @returns {Promise}
  */
 module.exports = async (req, res, next) => {
     try {
@@ -22,6 +22,6 @@ module.exports = async (req, res, next) => {
         req.user = user
         next()
     } catch (error) {
-        res.status(401).json({error: error | 'Requête non authentifiée !'});
+        res.status(500).json({error: error | 'Requête non authentifiée !'});
     }
 }

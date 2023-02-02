@@ -1,15 +1,13 @@
 const ModelsSauce = require("../models/ModelsSauce");
 const fs = require("fs");
-const { param } = require("../routes/user");
-const { Model } = require("mongoose");
 
 /**
  * Recupère la liste de sauces
- * @param req 
- * @param res 
- * @param next 
+ * @param {Express.Request} req
+ * @param {Express.Response} res 
+ * @returns {{Promise<Express.Response<mongoose.ResultDoc[]>}}
  */
-exports.getSauces = async (req, res, next) => {
+exports.getSauces = async (req, res) => {
   try {
     const sauces = await ModelsSauce.find() 
     res.json(sauces);
@@ -17,11 +15,14 @@ exports.getSauces = async (req, res, next) => {
     res.status(500).json();
   }
 };
+
 /**
  * Récupère une sauce en partuiculier à partir de son ID
- * @param {*} req 
- * @param {*} res 
- * @param {*} next 
+ * @param {Express.Request} req 
+ * @param {Express.Response} res 
+ * @param {Express.NextFunction} next 
+ * @returns {Promise<Express.Response<mongoose.ResultDoc>}
+ * 
  */
 exports.getSauceById = async (req, res, next) => {
   try {
@@ -31,12 +32,13 @@ exports.getSauceById = async (req, res, next) => {
     res.status(400).json({ error });
   }
 };
+
 /**
  * Créer une sauce
- * @param {*} req 
- * @param {*} res 
- * @param {*} next 
- * @returns {Object}
+ * @param {Express.Request} req 
+ * @param {Express.Response} res 
+ * @param {Express.NextFunction} next 
+ * @returns {Promise<any>}
  */
 exports.createSauce = async (req, res, next) => {
   try {
@@ -66,10 +68,10 @@ exports.createSauce = async (req, res, next) => {
 };
 /**
  * Vérifie qu'une sauce existe bien et si elle appartient à un utilisateur, si oui la modifie
- * @param req 
- * @param res 
- * @param next 
- * @returns {Object} - 
+ * @param {Express.Request} req 
+ * @param {Express.Response} res 
+ * @param {Express.NextFunction} next 
+ * @returns {Promise<any>}
  */
 exports.modifySauce = async (req, res, next) => {
   try {
@@ -81,8 +83,8 @@ exports.modifySauce = async (req, res, next) => {
     if (!sauce) {
       return res.status(404).json({ message: "Sauce introuvable" });
     }
-	if (sauce.userId !== req.user._id) {
-		return res.status(403).json
+	if (sauce.userId !== req.user._id.toString()) {
+		return res.status(403).json()
 	}
     if (req.file) {
       data = JSON.parse(req.body.sauce);
@@ -100,6 +102,7 @@ exports.modifySauce = async (req, res, next) => {
       mainPepper: data.mainPepper,
       heat: data.heat,
       userId: data.userId,
+
     };
     await ModelsSauce.updateOne({ _id: sauceId }, sauceObject);
 
@@ -108,12 +111,13 @@ exports.modifySauce = async (req, res, next) => {
     res.status(400).json({ error });
   }
 };
+
 /**
  * Vérifie qu'une sauce existe bien si oui la supprime ainsi que son image de la base de donnée
- * @param {*} req 
- * @param {*} res 
- * @param {*} next 
- * @returns {Object}
+ * @param {Express.Request} req 
+ * @param {Express.Response} res 
+ * @param {Express.NextFunction} next 
+ * @returns {Promise<any>}
  */
 exports.deleteSauce = async (req, res, next) => {
   try {
@@ -121,29 +125,31 @@ exports.deleteSauce = async (req, res, next) => {
     if (!sauce) {
       return res.status(204).json();
     }
-
+	if (sauce.userId !== req.user._id.toString()) {
+		return res.status(403).json()
+	}
     const filename = sauce.imageUrl.split("/images/")[1];
+	//Tentative de suppresion du fichier
     try {
       fs.unlink(`images/${filename}`, () => {});
-	  console.log(filename)
     } catch (error) {}
     await ModelsSauce.deleteOne({ _id: req.params.id });
     return res.status(200).json({message: "Sauce supprimée"});
   } catch (error) {
-	console.log(error)
     return res.status(500).json();
   }
 };
+
 /**
  * Vérifie si:
  * -un utilisateur est connecté
  * -la sauce existe
  * Permet de liker ou de disliker une sauce si l'utilisateur n'a pas déjà liké ou disliké la sauce auparavant
  * Permet d'arreter de liker ou disliker si l'utilisateur à déjà liké ou disliké une sauce auparavant
- * @param req 
- * @param res 
- * @param next 
- * @returns 
+ * @param {Express.Request} req 
+ * @param {Express.Response} res 
+ * @param {Express.NextFunction} next 
+ * @returns {Promise<any>}
  */
 exports.likeSauce = async (req, res, next) => {
   try {
