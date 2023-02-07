@@ -50,7 +50,7 @@ exports.createSauce = async (req, res, next) => {
       description: sauceObject.description,
       mainPepper: sauceObject.mainPepper,
       heat: sauceObject.heat,
-      userId: sauceObject.userId,
+      userId: req.user._id.toString(),
       imageUrl: `${req.protocol}://${req.get("host")}/images/${
         req.file.filename
       }`,
@@ -75,9 +75,10 @@ exports.createSauce = async (req, res, next) => {
  */
 exports.modifySauce = async (req, res, next) => {
   try {
-    const sauceId = req.params.id;
+    const sauceId =req.params.id;
     let sauceObject = {};
     let data = {};
+
 
     const sauce = await ModelsSauce.findOne({ _id: sauceId });
     if (!sauce) {
@@ -101,8 +102,7 @@ exports.modifySauce = async (req, res, next) => {
       description: data.description,
       mainPepper: data.mainPepper,
       heat: data.heat,
-      userId: data.userId,
-
+      userId: req.user._id.toString(),
     };
     await ModelsSauce.updateOne({ _id: sauceId }, sauceObject);
 
@@ -129,7 +129,7 @@ exports.deleteSauce = async (req, res, next) => {
 		return res.status(403).json()
 	}
     const filename = sauce.imageUrl.split("/images/")[1];
-	//Tentative de suppresion du fichier
+	//Tentative de suppresion du fichier :
     try {
       fs.unlink(`images/${filename}`, () => {});
     } catch (error) {}
@@ -154,7 +154,7 @@ exports.deleteSauce = async (req, res, next) => {
 exports.likeSauce = async (req, res, next) => {
   try {
     const like = req.body.like;
-    const userId = req.body.userId;
+    const userId = req.user._id.toString()
     const sauceId = req.params.id;
 
     if (!userId) {
